@@ -4,11 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QKNWZ1.WpfApp"
-        d:DataContext="{d:DesignInstance Type=local:WaypointVM}"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=local:WaypointVM}"
         Title="WaypointWindow"
         SizeToContent="WidthAndHeight"
-        Closing="Window_Closing">
+        >
     <Window.Resources>
         <!--<ControlTemplate x:Key="ValidatorTemplate">
             <DockPanel>
@@ -28,12 +28,12 @@
             <Setter Property="MinWidth" Value="128" />
             <Setter Property="MinHeight" Value="8" />
             <Setter Property="Margin" Value="8" />
-            <Style.Triggers>
+            <!--<Style.Triggers>
                 <Trigger Property="Validation.HasError" Value="True">
                     <Setter Property="ToolTip"
                             Value="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=(Validation.Errors)/ErrorContent}" />
                 </Trigger>
-            </Style.Triggers>
+            </Style.Triggers>-->
         </Style>
     </Window.Resources>
 
@@ -105,13 +105,15 @@
                       VerticalAlignment="Center"
                       Margin="8"
                       />
-            <Button Grid.Row="5"
+            
+            <!--<Button Grid.Row="5"
                     Command="{Binding SaveChangesCommand}"
                     Content="Save"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Center"
                     Padding="4,2,4,2"
-                    />
+                    />-->
+            
         </Grid>
     </StackPanel>
 </Window>

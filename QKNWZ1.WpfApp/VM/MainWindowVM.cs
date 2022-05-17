@@ -7,21 +7,13 @@ namespace QKNWZ1.WpfApp
 {
     public partial class MainWindowVM : ObservableRecipient
     {
-        private static readonly string[] categories = { "Easy", "Medium", "Hard" };
-
-        //[ObservableProperty]
-        //[AlsoNotifyChangeFor(nameof(someOtherField))]
-        //[AlsoNotifyCanExecuteFor(nameof(EditWaypoint))]  // see below for more
         private Waypoint selectedWaypoint;
-
-        //[ObservableProperty]
-        //[AlsoNotifyCanExecuteFor(nameof(RemoveFromHike))]
         private Waypoint selectedWaypointInHike;
 
         [ObservableProperty]
-        private Hike selectedHike;
+        private Hike selectedHike; // this can be auto-generated because it is not needed in any custom logic
 
-        public MainWindowVM() //: this("WaypointList.txt")
+        public MainWindowVM()
         {
             WaypointsForHike = new ObservableCollection<Waypoint>();
             Waypoints = new ObservableCollection<Waypoint>(Waypoint.GetWaypoints("WaypointList.txt"));
@@ -29,22 +21,18 @@ namespace QKNWZ1.WpfApp
             Hikes = new ObservableCollection<Hike>();
 
             // Use a dialog window to edit the first ListBox
-            CreateWaypoint = new RelayCommand(() => new WaypointWindow(this).ShowDialog());
+            //ModifyWaypoint = new RelayCommand(ModifyWaypointMethod);
 
-            EditWaypoint = new RelayCommand(() => new WaypointWindow(this).ShowDialog(), IsNotWaypointNull);
+            MoveToHike = new RelayCommand(AddToHikeMethod, () => SelectedWaypoint is not null && IsHardLimitObeyed());
 
-            MoveToHike = new RelayCommand(AddToHikeMethod, () => IsNotWaypointNull() && IsHardLimitObeyed());
-
-            RemoveFromHike = new RelayCommand(RemoveFromHikeMethod, IsNotWaypointNull);
+            RemoveFromHike = new RelayCommand(RemoveFromHikeMethod, () => SelectedWaypointInHike is not null);
 
             SaveHike = new RelayCommand(SaveHikeMethod, () => !string.IsNullOrEmpty(selectedHike?.DateOfHike));
         }
 
-        public string[] Categories => categories;
         public ObservableCollection<Waypoint> Waypoints { get; set; }
         public ObservableCollection<Waypoint> WaypointsForHike { get; set; }
         public ObservableCollection<Hike> Hikes { get; set; }
-
 
         public Waypoint SelectedWaypoint
         {
@@ -52,13 +40,11 @@ namespace QKNWZ1.WpfApp
             set
             {
                 if (SetProperty(ref selectedWaypoint, value))
-                {
-                    (EditWaypoint as IRelayCommand).NotifyCanExecuteChanged();
                     (MoveToHike as IRelayCommand).NotifyCanExecuteChanged();
-                }
             }
         }
-        public Waypoint SelectedWaypointForHike
+
+        public Waypoint SelectedWaypointInHike
         {
             get => selectedWaypointInHike;
             set
@@ -78,27 +64,20 @@ namespace QKNWZ1.WpfApp
             }
         }
 
-        public ICommand CreateWaypoint { get; private set; }
-        public ICommand EditWaypoint { get; private set; }
         public ICommand MoveToHike { get; private set; }
         public ICommand RemoveFromHike { get; private set; }
         public ICommand SaveHike { get; private set; }
 
-        /*
-        * In the future: https://egvijayanand.in/2022/05/09/mvvm-made-easy-with-microsoft-mvvm-toolkit-part-2/
-
         [ICommand]
-        public void CreateWaypoint()
+        private void ModifyWaypoint() // no special/custom logic so this can be auto-generated.
         {
-            _ = new WaypointWindow(this).ShowDialog();
+            if (SelectedWaypoint is null)
+            {
+                SelectedWaypoint = new Waypoint();
+                Waypoints.Add(SelectedWaypoint);
+            }
+            _ = new WaypointWindow(SelectedWaypoint).ShowDialog();
         }
-
-        // this below is fine, or use AlsoNotifyCanExecuteForAttribute(string) on top of the corresponding field.
-        [ICommand(CanExecute = nameof(IsNotWaypointNull))]
-        public void EditWaypoint() => CreateWaypoint();
-        */
-
-        private bool IsNotWaypointNull() => selectedWaypoint is not null;
 
         private bool IsHardLimitObeyed()
         {
@@ -124,8 +103,8 @@ namespace QKNWZ1.WpfApp
         }
         private void RemoveFromHikeMethod()
         {
-            WaypointsForHike.Remove(SelectedWaypointForHike);
-            SelectedWaypointForHike = null;
+            WaypointsForHike.Remove(SelectedWaypointInHike);
+            SelectedWaypointInHike = null;
         }
         private void AddToHikeMethod()
         {
@@ -135,7 +114,9 @@ namespace QKNWZ1.WpfApp
     }
 
     /*
-     * Alternative, not fully working
+     * In the future: https://egvijayanand.in/2022/05/09/mvvm-made-easy-with-microsoft-mvvm-toolkit-part-2/
+     * 
+     * Alternative, not fully working below:
 
     public partial class MainWindowVM
     {
